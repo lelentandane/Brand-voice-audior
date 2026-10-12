@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brand Voice &amp; Visual Style Auditor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>Brand Voice &amp; Visual Style Auditor</h1>
+      <p>Audit a website's voice, SEO and color palette in one pass.</p>
+    </header>
+
+    <form id="audit-form" class="card" novalidate>
+      <label for="url">Enter Brand URL</label>
+      <div class="input-row">
+        <input id="url" type="text" inputmode="url" autocomplete="url"
+               placeholder="example.com" required>
+        <button id="submit-btn" type="submit">Run audit</button>
+      </div>
+
+      <details class="accordion">
+        <summary>Brand guidelines (optional)</summary>
+        <div class="accordion-body">
+          <label for="tone">Target tone</label>
+          <input id="tone" type="text" maxlength="200"
+                 placeholder="e.g. warm, playful, premium">
+
+          <label for="keywords">Target keywords</label>
+          <input id="keywords" type="text"
+                 placeholder="Separate with commas, e.g. specialty coffee, small batch">
+
+          <label for="guidelines">Voice guidelines</label>
+          <textarea id="guidelines" rows="4" maxlength="3000"
+                    placeholder="Paste your brand voice rules, dos and don'ts, or example phrases."></textarea>
+
+          <p class="hint">Without guidelines, the voice check scores consistency only.</p>
+        </div>
+      </details>
+    </form>
+
+    <section id="loading" class="card loading" hidden aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="loading-text"></p>
+    </section>
+
+    <div id="error" class="banner error" role="alert" hidden></div>
+    <section id="results" hidden></section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
