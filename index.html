@@ -3,52 +3,67 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Brand Voice &amp; Visual Style Auditor</title>
+  <title>Brand Voice Auditor</title>
+  <meta name="description" content="Paste a website address and get a brand health score for voice, SEO and color, plus a short list of what to fix first.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container">
-    <header class="hero">
-      <h1>Brand Voice &amp; Visual Style Auditor</h1>
-      <p>Audit a website's voice, SEO and color palette in one pass.</p>
+  <div class="page">
+    <header class="top">
+      <span class="wordmark">Brand Voice Auditor</span>
+      <span id="status" class="status" role="status">Checking server...</span>
     </header>
 
-    <form id="audit-form" class="card" novalidate>
-      <label for="url">Enter Brand URL</label>
-      <div class="input-row">
-        <input id="url" type="text" inputmode="url" autocomplete="url"
-               placeholder="example.com" required>
-        <button id="submit-btn" type="submit">Run audit</button>
-      </div>
+    <main>
+      <section class="intro">
+        <h1>See how your website sounds, looks and ranks.</h1>
+        <p class="lede">Paste a web address. You get a score out of 100 and a short list of what to fix first.</p>
+      </section>
 
-      <details class="accordion">
-        <summary>Brand guidelines (optional)</summary>
-        <div class="accordion-body">
-          <label for="tone">Target tone</label>
-          <input id="tone" type="text" maxlength="200"
-                 placeholder="e.g. warm, playful, premium">
-
-          <label for="keywords">Target keywords</label>
-          <input id="keywords" type="text"
-                 placeholder="Separate with commas, e.g. specialty coffee, small batch">
-
-          <label for="guidelines">Voice guidelines</label>
-          <textarea id="guidelines" rows="4" maxlength="3000"
-                    placeholder="Paste your brand voice rules, dos and don'ts, or example phrases."></textarea>
-
-          <p class="hint">Without guidelines, the voice check scores consistency only.</p>
+      <form id="audit-form" class="form" novalidate>
+        <label for="url">Website address</label>
+        <div class="input-row">
+          <input id="url" type="text" inputmode="url" autocomplete="url" placeholder="yourbrand.com" required>
+          <button id="submit-btn" class="btn primary" type="submit">Run audit</button>
         </div>
-      </details>
-    </form>
+        <p class="form-note">
+          Not ready to try it on your own site?
+          <button id="sample-btn" class="link-btn" type="button">View a sample audit</button>
+        </p>
 
-    <section id="loading" class="card loading" hidden aria-live="polite">
-      <div class="spinner" aria-hidden="true"></div>
-      <p id="loading-text"></p>
-    </section>
+        <details class="rules">
+          <summary>Add your brand rules (optional)</summary>
+          <div class="rules-body">
+            <p class="hint">Without rules, the audit only checks that your voice is consistent. With rules, it also checks the page against what you want to sound like.</p>
 
-    <div id="error" class="banner error" role="alert" hidden></div>
-    <section id="results" hidden></section>
-  </main>
+            <label for="tone">How should your brand sound?</label>
+            <input id="tone" type="text" maxlength="200" placeholder="warm, playful, premium">
+
+            <label for="keywords">Words you want to rank for</label>
+            <input id="keywords" type="text" placeholder="specialty coffee, small batch">
+            <p class="hint">Separate words with commas.</p>
+
+            <label for="guidelines">Voice rules</label>
+            <textarea id="guidelines" rows="4" maxlength="3000" placeholder="Short sentences. Friendly, never salesy. Say &quot;you&quot;, not &quot;customers&quot;."></textarea>
+
+            <button id="example-btn" class="link-btn" type="button">Fill in an example</button>
+          </div>
+        </details>
+      </form>
+
+      <section id="loading" class="loading" hidden aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="loading-text"></p>
+      </section>
+
+      <div id="error" class="banner error" role="alert" hidden></div>
+      <div id="results" hidden></div>
+    </main>
+
+    <footer class="foot">
+      <p>Scores are guidance, not a verdict. Voice scores come from an AI model and can vary by a few points between runs.</p>
+    </footer>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>

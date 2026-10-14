@@ -1,19 +1,39 @@
 """main.py - FastAPI app. Run from backend/: uvicorn main:app --reload"""
 
+import os
+import time
+from collections import defaultdict, deque
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import ai_analyzer
 import scoring
 import scraper
+import sample_data
 import visual_processor
 
 app = FastAPI(title="Brand Voice & Visual Style Auditor")
+
+RATE_LIMIT_PER_HOUR = int(os.getenv("RATE_LIMIT_PER_HOUR", "20"))
+_hits: dict[str, deque] = defaultdict(deque)
+
+
+def _check_rate_limit(client: str) -> None:
+    """In-memory sliding window per client address. Resets on restart."""
+    now = time.time()
+    window = _hits[client]
+    while window and now - window[0] > 3600:
+        window.popleft()
+    if len(window) >= RATE_LIMIT_PER_HOUR:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Limit of {RATE_LIMIT_PER_HOUR} audits per hour reached. Try again later.")
+    window.append(now)
 
 
 class AuditRequest(BaseModel):
@@ -25,8 +45,27 @@ class AuditRequest(BaseModel):
                                       description="Free-text brand voice guidelines")
 
 
+@app.get("/api/status")
+def status():
+    """Tells the dashboard whether live audits are available."""
+    return {"ai_configured": bool(os.getenv("ANTHROPIC_API_KEY"))}
+
+
+@app.get("/api/sample")
+def sample():
+    """A complete example report. Needs no API key and makes no network calls."""
+    return sample_data.sample_report()
+
+
 @app.post("/audit")
-def audit(req: AuditRequest):
+def audit(req: AuditRequest, request: Request):
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="Live audits need an ANTHROPIC_API_KEY on the server. "
+                   "Open the sample audit to see a full report.")
+    _check_rate_limit(request.client.host if request.client else "unknown")
+
     # 1. Scrape
     try:
         page = scraper.scrape(req.url)
@@ -69,9 +108,11 @@ def audit(req: AuditRequest):
 
     return {
         "url": page["url"],
+        "is_sample": False,
         "page": {"title": page["title"], "meta_description": page["meta_description"],
                  "word_count": seo["word_count"], "image_count": len(page["images"])},
         "brand_health": scoring.health_score(voice["voice_score"], seo["score"], visual_score),
+        "priorities": scoring.priorities(voice, seo),
         "voice": voice,
         "seo": seo,
         "visual": visuals,

@@ -23,3 +23,19 @@ def health_score(voice: int | None, seo: int | None, visual: int | None) -> dict
         "components": parts,
         "weights": {k: round(WEIGHTS[k] / total_weight, 2) for k in used} if used else {},
     }
+
+
+def priorities(voice: dict | None, seo: dict | None, limit: int = 5) -> list[dict]:
+    """The fixes worth doing first, in plain language.
+
+    Voice issues come first because voice carries the largest weight. Failed
+    SEO checks follow. Each item has an area, a short title and an action.
+    """
+    items = []
+    for issue in (voice or {}).get("issues", []):
+        items.append({"area": "Voice", "title": issue["issue"], "action": issue["fix"]})
+    for check in (seo or {}).get("checks", []):
+        if not check["passed"]:
+            items.append({"area": "SEO", "title": check["check"],
+                          "action": check.get("advice", "")})
+    return items[:limit]

@@ -14,8 +14,8 @@ class AnalysisError(Exception):
 
 # ---------- SEO: plain code, so the same page always gets the same score ----------
 
-def _check(name: str, passed: bool, detail: str) -> dict:
-    return {"check": name, "passed": bool(passed), "detail": detail}
+def _check(name: str, passed: bool, detail: str, advice: str) -> dict:
+    return {"check": name, "passed": bool(passed), "detail": detail, "advice": advice}
 
 
 def seo_audit(page: dict, keywords: list | None = None) -> dict:
@@ -25,15 +25,20 @@ def seo_audit(page: dict, keywords: list | None = None) -> dict:
 
     checks = [
         _check("Title length is 30-60 characters", 30 <= len(title) <= 60,
-               f"{len(title)} characters"),
+               f"{len(title)} characters",
+               "Rewrite the page title so it is 30 to 60 characters and names the brand and what it offers."),
         _check("Meta description is 70-160 characters", 70 <= len(meta) <= 160,
-               f"{len(meta)} characters" if meta else "missing"),
+               f"{len(meta)} characters" if meta else "missing",
+               "Add a meta description of 70 to 160 characters that says what the page offers and why to click."),
         _check("Exactly one H1", len(page["h1"]) == 1,
-               f"{len(page['h1'])} found"),
+               f"{len(page['h1'])} found",
+               "Use a single H1 that states the page's main promise, and turn any other H1s into H2s."),
         _check("Has H2 subheadings", len(page["h2"]) >= 2,
-               f"{len(page['h2'])} found"),
+               f"{len(page['h2'])} found",
+               "Break the page into sections with at least two H2 subheadings that describe each section."),
         _check("Body copy of at least 300 words", words >= 300,
-               f"{words} words"),
+               f"{words} words",
+               "Add body copy until the page has at least 300 words, focused on what visitors want to know."),
     ]
 
     keywords = [k.strip() for k in (keywords or []) if k.strip()]
@@ -44,7 +49,8 @@ def seo_audit(page: dict, keywords: list | None = None) -> dict:
             "Target keywords appear in title, meta or headings",
             len(hits) >= len(keywords) / 2,
             f"{len(hits)} of {len(keywords)} found" +
-            (f" ({', '.join(hits)})" if hits else "")))
+            (f" ({', '.join(hits)})" if hits else ""),
+            "Work your target keywords into the page title, meta description and headings."))
 
     score = round(100 * sum(c["passed"] for c in checks) / len(checks))
     return {"score": score, "checks": checks, "word_count": words}

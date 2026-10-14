@@ -1,6 +1,22 @@
 # Brand Voice & Visual Style Auditor
 
-A full-stack web app that audits a brand's website. Enter a URL, optionally add your brand guidelines, and get a **Brand Health Score** with a breakdown of voice, SEO and visual cohesion, plus specific, actionable fixes.
+![Tests](https://github.com/lelentandane/brand-voice-auditor/actions/workflows/tests.yml/badge.svg)
+
+A full-stack web app that audits a brand's website. Enter a URL, optionally add your brand guidelines, and get a **Brand Health Score** out of 100 with a breakdown of voice, SEO and color cohesion, plus a short list of what to fix first.
+
+![A finished audit](docs/screenshots/report.png)
+
+## Try it in 30 seconds (no API key)
+
+```bash
+git clone https://github.com/lelentandane/brand-voice-auditor.git
+cd brand-voice-auditor
+python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cd backend && uvicorn main:app --reload
+```
+
+Open **http://localhost:8000** and select **View a sample audit**. The sample is a finished report for a fictional coffee brand and needs no key and no network. Live audits of real sites need an Anthropic API key (see Getting started).
 
 ## Features
 
@@ -9,6 +25,8 @@ A full-stack web app that audits a brand's website. Enter a URL, optionally add 
 - **Brand voice analysis:** an LLM scores tone and consistency against a fixed rubric and, when provided, your own brand guidelines. Every issue is backed by a quote from the page and a suggested fix.
 - **Color palette extraction:** reads brand colors from the site's CSS (design tokens weighted highest) and from page images with ColorThief, then merges near-identical shades.
 - **Unified report:** a weighted overall score with a per-component breakdown.
+- **Fix these first:** the most important voice issues and failed SEO checks, each with a concrete action.
+- **Built-in sample audit:** explore a complete report without any API key.
 
 ## Tech stack
 
@@ -65,12 +83,17 @@ brand-voice-auditor/
 │   ├── scraper.py           # Fetching, parsing, URL safety checks
 │   ├── ai_analyzer.py       # SEO rules and LLM voice analysis
 │   ├── visual_processor.py  # CSS and image color extraction
-│   └── scoring.py           # Visual score and overall health score
+│   ├── scoring.py           # Visual score, overall health score, priority fixes
+│   └── sample_data.py       # Example report for demo mode
 ├── frontend/
 │   ├── index.html           # Dashboard layout
 │   ├── style.css            # Styling, light and dark themes
-│   └── script.js            # Form handling and safe DOM rendering
+│   ├── script.js            # Form handling and safe DOM rendering
+│   └── fonts/               # Bundled Hanken Grotesk and Instrument Serif (OFL)
+├── tests/                   # pytest suite
+├── docs/screenshots/
 ├── requirements.txt
+├── requirements-dev.txt
 └── README.md
 ```
 
@@ -84,7 +107,7 @@ brand-voice-auditor/
 ### Setup
 
 ```bash
-git clone https://github.com/Lelentandane/brand-voice-auditor.git
+git clone https://github.com/lelentandane/brand-voice-auditor.git
 cd brand-voice-auditor
 
 python -m venv venv
@@ -110,8 +133,17 @@ Open **http://localhost:8000**. The backend serves the dashboard, so no separate
 |---|---|---|---|
 | `ANTHROPIC_API_KEY` | Yes | none | API key for the voice analysis |
 | `ANTHROPIC_MODEL` | No | `claude-sonnet-5-5` | Override the model used |
+| `RATE_LIMIT_PER_HOUR` | No | `20` | Audits allowed per IP address per hour |
 
 ## API
+
+### Endpoints
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/audit` | POST | Run a live audit |
+| `/api/sample` | GET | Example report, flagged `is_sample: true`. No key needed |
+| `/api/status` | GET | Whether the server has an API key configured |
 
 ### `POST /audit`
 
@@ -157,7 +189,16 @@ Only `url` is required. Without guidelines, the voice check scores consistency o
 }
 ```
 
-**Status codes:** `200` success, `400` invalid or blocked URL, `422` invalid input or no readable text, `502` AI service error.
+**Status codes:** `200` success, `400` invalid or blocked URL, `422` invalid input or no readable text, `429` rate limit reached, `502` AI service error, `503` no API key configured.
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+The suite covers scoring and score rescaling, every SEO rule, URL safety checks, HTML parsing, CSS color extraction and the API endpoints (with the network and AI calls replaced by fakes). It runs on every push through GitHub Actions.
 
 ## Security
 
@@ -183,15 +224,16 @@ Only `url` is required. Without guidelines, the voice check scores consistency o
 - Utility frameworks like Tailwind include many unused color classes, which can add noise to the palette.
 
 **Deployment**
-- The app is designed for local or controlled use. A public deployment should add rate limiting and result caching to protect API usage.
+- The built-in rate limiter is per process and resets on restart. A public deployment should add result caching and a proxy-aware limiter to protect API usage.
 - The SSRF check resolves DNS before fetching. Production use should pin the resolved IP for the request to rule out DNS rebinding.
 - SEO rules and the voice rubric assume English-language copy.
 
 ## Roadmap
 
 - [ ] Playwright fallback for JavaScript-rendered sites
-- [ ] Per-IP rate limiting and a short-lived result cache
-- [ ] Automated tests (pytest) for parsers and scoring
+- [x] Per-IP rate limiting
+- [ ] Short-lived result cache
+- [x] Automated tests (pytest) for parsers, scoring and the API
 - [ ] Multi-page crawl for site-wide voice consistency
 - [ ] Vision model review of a homepage screenshot
 - [ ] Calibrate scoring against a labeled set of sites
@@ -204,5 +246,5 @@ MIT. See `LICENSE`.
 
 ## Author
 
-**<your name>**
-[GitHub](https://github.com/Lelentandane) | [LinkedIn](https://www.linkedin.com/in/sphelele-ntandane-9a7178382)
+**Sphelele Ntandane**
+[GitHub](https://github.com/lelentandane) | [LinkedIn](https://www.linkedin.com/in/lelentandane)
