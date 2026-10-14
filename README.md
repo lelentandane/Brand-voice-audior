@@ -1,10 +1,10 @@
 # Brand Voice & Visual Style Auditor
 
-![Tests](https://github.com/lelentandane/brand-voice-auditor/actions/workflows/tests.yml/badge.svg)
+
 
 A full-stack web app that audits a brand's website. Enter a URL, optionally add your brand guidelines, and get a **Brand Health Score** out of 100 with a breakdown of voice, SEO and color cohesion, plus a short list of what to fix first.
 
-![A finished audit](docs/screenshots/report.png)
+![A finished audit](report.png)
 
 ## Try it in 30 seconds (no API key)
 
@@ -247,4 +247,4 @@ MIT. See `LICENSE`.
 ## Author
 
 **Sphelele Ntandane**
-[GitHub](https://github.com/lelentandane) | [LinkedIn](https://www.linkedin.com/in/lelentandane)
+[GitHub](https://github.com/lelentandane) | [LinkedIn](https://www.linkedin.com/in/sphelelentandane)
