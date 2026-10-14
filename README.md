@@ -1,15 +1,29 @@
 # Brand Voice & Visual Style Auditor
 
-
+![Tests](https://github.com/Lelentandane/brand-voice-auditor/actions/workflows/tests.yml/badge.svg)
 
 A full-stack web app that audits a brand's website. Enter a URL, optionally add your brand guidelines, and get a **Brand Health Score** out of 100 with a breakdown of voice, SEO and color cohesion, plus a short list of what to fix first.
 
-![A finished audit](report.png)
+![A finished audit](docs/screenshots/report.png)
+
+## The problem
+
+A brand's website says things in three ways at once: the words it uses, the way search engines read it, and the colors it shows. Small brands and freelancers rarely have anyone checking that those three tell the same story, and a professional brand audit is slow and expensive. This tool gives a first pass in under a minute: one score, plus the specific fixes to make first, each backed by a quote from the page.
+
+**Built for:** founders, freelance marketers and agencies who need a quick, evidence-based check of a client's site.
+
+## What this project demonstrates
+
+- **API design:** a typed FastAPI and Pydantic backend with clear status codes for bad input, missing keys, rate limits and upstream failures.
+- **Working with an LLM safely:** structured output through a tool schema, a fixed scoring rubric, and plain code for everything that does not need judgment.
+- **Security basics:** the scraper blocks private and internal addresses, and the front end only ever writes page content with `textContent`.
+- **Reliability:** voice and color analysis run in parallel, and a failure in one part returns a partial report with a warning instead of an error.
+- **Testing and delivery:** a pytest suite, continuous integration on every push, and a no-key demo mode so anyone can try it.
 
 ## Try it in 30 seconds (no API key)
 
 ```bash
-git clone https://github.com/lelentandane/brand-voice-auditor.git
+git clone https://github.com/Lelentandane/brand-voice-auditor.git
 cd brand-voice-auditor
 python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -42,16 +56,16 @@ Open **http://localhost:8000** and select **View a sample audit**. The sample is
 
 ```mermaid
 flowchart LR
-    A[Browser dashboard] -->|POST /audit| B[main.py<br/>FastAPI]
-    B --> C[scraper.py<br/>fetch and parse HTML]
-    C --> D[ai_analyzer.py<br/>LLM voice analysis]
-    C --> E[visual_processor.py<br/>CSS and image colors]
-    C --> F[ai_analyzer.py<br/>SEO rules]
-    D --> G[scoring.py<br/>weighted health score]
+    A["Browser dashboard"] -->|"POST /audit"| B["main.py (FastAPI)"]
+    B --> C["scraper.py: fetch and parse HTML"]
+    C --> D["ai_analyzer.py: LLM voice analysis"]
+    C --> E["visual_processor.py: CSS and image colors"]
+    C --> F["ai_analyzer.py: SEO rules"]
+    D --> G["scoring.py: weighted health score"]
     E --> G
     F --> G
     G --> B
-    B -->|JSON report| A
+    B -->|"JSON report"| A
 ```
 
 Voice analysis and visual analysis run in parallel, since both spend most of their time waiting on the network.
@@ -107,7 +121,7 @@ brand-voice-auditor/
 ### Setup
 
 ```bash
-git clone https://github.com/lelentandane/brand-voice-auditor.git
+git clone https://github.com/Lelentandane/brand-voice-auditor.git
 cd brand-voice-auditor
 
 python -m venv venv
@@ -247,4 +261,4 @@ MIT. See `LICENSE`.
 ## Author
 
 **Sphelele Ntandane**
-[GitHub](https://github.com/lelentandane) | [LinkedIn](https://www.linkedin.com/in/sphelelentandane)
+[GitHub](https://github.com/Lelentandane) | [LinkedIn](https://www.linkedin.com/in/sphelele-ntandane-9a7178382)
